@@ -45,27 +45,18 @@ public class Steering : MonoBehaviour
 		dv -= transform.forward * speed;//subtract velocity to get vector in that direction
 		return dv;  
 	}
+
 	
 	public Vector3 Seek (Vector3 pos)
 	{
-		// find dv, the desired velocity
-		Vector3 dv = pos - transform.position;
-		//calculate distance between pos and position of seeker
-		float dist = Vector3.Distance(pos,transform.position);
-		dv.y = 0; //only steer in the x/z plane
-		//if close slow down, else full speed seek
-		
-		if(dist > 5)
-		{
-			dv = dv.normalized * (maxSpeed * .7f);//scale by maxSpeed
-		} 
-		else
-		{
-				dv = dv.normalized * (maxSpeed * .5f);
-		}
-		
-		dv -= transform.forward * speed;//subtract velocity to get vector in that direction
-		return dv;
+		/*
+		float maxSpeed
+		float maxForce
+		float speed
+		Vector3 velocity;
+	*/
+		return ((pos - transform.position).normalized * maxSpeed) - velocity;
+
 	}
 	
 	public Vector3 Arrival (Vector3 pos)
@@ -109,20 +100,13 @@ public class Steering : MonoBehaviour
 
 	public Vector3 Flee (Vector3 pos)
 	{
-		Vector3 dv = transform.position - pos;//opposite direction from seek 
-		dv.y = 0;
-		dv = dv.normalized * maxSpeed;
-		dv -= transform.forward * speed;
-		return dv;
+
+		return -Seek(pos);
 	}
 	
 	public Vector3 Flee (GameObject go)
 	{
-		Vector3 targetPos = go.transform.position;
-		targetPos.y = transform.position.y;
-		Vector3 dv = transform.position - targetPos;
-		dv = dv.normalized * maxSpeed;
-		return dv - transform.forward * speed;
+		return Flee (go.transform.position);
 	}
 
 	public Vector3 AlignTo (Vector3 direction)

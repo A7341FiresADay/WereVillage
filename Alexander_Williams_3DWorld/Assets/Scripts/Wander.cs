@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Wander : MonoBehaviour {
 	float wanderRandom = 0; //current position on projected circle
-	public float wanderRate = 0.1; //rate at which point on circle moves
+	public float wanderRate = 0.1f; //rate at which point on circle moves
 	public int wanderRadius = 50; //radius of projected circle for wander
 	public int wanderDistance = 50; //distance from character to projected circle
 
