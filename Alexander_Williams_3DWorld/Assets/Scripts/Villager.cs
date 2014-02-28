@@ -93,9 +93,12 @@ public class Villager : MonoBehaviour
 		CalcSteeringForce ();
 		ClampSteering ();
 		
-		moveDirection = transform.forward * steering.Speed;
+		moveDirection = transform.forward;
+		moveDirection.y = 0;
+		moveDirection *= steering.Speed;
 		// movedirection equals velocity
 		//add acceleration
+		steeringForce.y = 0;
 		moveDirection += steeringForce * Time.deltaTime;
 		//update speed
 		steering.Speed = moveDirection.magnitude;
@@ -104,13 +107,18 @@ public class Villager : MonoBehaviour
 		}
 		//orient transform
 		if (moveDirection != Vector3.zero)
+		{	
 			transform.forward = moveDirection;
+		}
 		
 		// Apply gravity
 		moveDirection.y -= gravity;
-		
+
 		// the CharacterController moves us subject to physical constraints
 		characterController.Move (moveDirection * Time.deltaTime);
+		
+
+
 	}
 	
 	//Uses the various Movement Behaviors to calculate the vector to
@@ -173,6 +181,7 @@ public class Villager : MonoBehaviour
 				//steeringForce += steering.AvoidObstacle(gameManager.Obstacles[i], gameManager.avoidDist);	
 			}
 		}
+
 	}
 
 	
