@@ -34,14 +34,14 @@ public class Monkey : MonoBehaviour {
 
 		var speed = 50;
 		var new_dir = (tar.normalized + transform.forward * speed);*/
-		characterController.SimpleMove ( steering.Seek(get_target_point())*5 );
+		characterController.SimpleMove ( steering.Arrival(get_target_point())*2 );
 
 
 	}
 
 	int target_point = 0; 
 	private Vector3 get_target_point(){
-		if(Vector3.Distance(transform.position, points[target_point]) < 20){
+		if(Vector3.Distance(transform.position, points[target_point]) < 10){
 			target_point = target_point+1 >= points.Count ? 0 : target_point+1;
 		}
 		return points[target_point];
@@ -79,7 +79,7 @@ public class Monkey : MonoBehaviour {
 
 		if(distance > pathRadius) 
 		{
-			return steering.Seek(pathTarget);
+			return steering.Arrival(pathTarget);
 		}
 		else return Vector3.zero;
 	}

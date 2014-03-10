@@ -68,14 +68,12 @@ public class Steering : MonoBehaviour
 		dv.y = 0; //only steer in the x/z plane
 		//if close slow down, else full speed seek
 		
-		if(dist > 5)
-		{
-			dv = dv.normalized * (maxSpeed);//scale by maxSpeed
-		} 
-		else
-		{
-				dv = dv.normalized * (maxSpeed * .2f);
-		}
+
+		dv = (dv.normalized * (maxSpeed));//scale by maxSpeed
+		if (dist < 5) {
+						dv *= 1 / dist;
+				}
+		
 		
 		dv -= transform.forward * speed;//subtract velocity to get vector in that direction
 		return dv;
