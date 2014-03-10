@@ -46,7 +46,7 @@ public class map_layout : MonoBehaviour {
 		foreach (GameObject node in posts) {
 			foreach(edge e in node.GetComponent<node>().edges){
 				//e.weight
-				Debug.DrawLine(node.transform.position, e.to.transform.position, new Color(100,0,0));
+				Debug.DrawLine(node.transform.position, e.to.transform.position, new Color(100,0,0, 0.1f));
 			}
 		}
 	}
