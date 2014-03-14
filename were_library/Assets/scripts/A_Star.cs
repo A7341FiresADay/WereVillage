@@ -5,55 +5,32 @@ using System.Collections.Generic;
 
 public class A_Star {
 
-	a_star_node agent;
-	List<a_star_node> nodes;
-	a_star_node target;
-	public a_star_node Target {
-		get
-		{
-			return target;
-		}
-	}
-	List<a_star_node> path;
+	List<GameObject> nodes {get{
+		return GameObject.Find ("map").GetComponent<map_layout> ().posts;
+	}}
 
-	public A_Star(){
-	}
+	public GameObject Target;
 
-	public void set_target(GameObject g_target)
-	{
-		target = get_a_star_node (g_target);
+	public A_Star(){ }
 
-	}
-	private a_star_node get_a_star_node(GameObject node_obj)
-	{
-		foreach (a_star_node n in nodes) {
-			if(n.node == node_obj){
-				return n;
-			}
-		}
-		return new a_star_node ();
-	}
 
-	public void load_nodes(List<GameObject> g_nodes)
-	{
-		nodes = new List<a_star_node> ();
-		foreach (GameObject g_node in g_nodes) 
-		{
-			nodes.Add(new a_star_node(g_node));
-		}
-	}
 
 	public Vector3 short_term_target(GameObject _agent) //switch to storing later
 	{
-		agent = nearist_node_to(nodes, _agent);
-		if (path == null) {
-			path = a_star(agent, target);
-
+		GameObject agent_node = nearist_node_to(nodes, _agent);
+		List<GameObject> path = a_star(agent_node, Target);
+		
+		foreach(GameObject p in path){
+			Debug.DrawLine(p.transform.position,p.transform.position + Vector3.up*100, Color.red );
 		}
-
-		return nearist_node_to( nodes, _agent).node.transform.position;
-
-
+		if (path.Count > 1) 
+		{
+			return path [1].transform.position;
+		} 
+		else 
+		{
+			return _agent.transform.position;
+		}
 	}
 	
 
@@ -62,47 +39,47 @@ public class A_Star {
 
 
 	
-	private List<a_star_node> a_star(a_star_node start, a_star_node goal)
+	private List<GameObject> a_star(GameObject start, GameObject goal)
 	{
-		List<a_star_node> closedset = new List<a_star_node> ();
-		List<a_star_node> openset = new List<a_star_node>();
+		List<GameObject> closedset = new List<GameObject> ();
+		List<GameObject> openset = new List<GameObject>();
 		openset.Add (start);
-		Dictionary<a_star_node, float> g_score = new Dictionary<a_star_node, float> ();
-		Dictionary<a_star_node, float> f_score = new Dictionary<a_star_node, float> ();
+		Dictionary<GameObject, float> g_score = new Dictionary<GameObject, float> ();
+		Dictionary<GameObject, float> f_score = new Dictionary<GameObject, float> ();
 		g_score [start] = 0;
-		f_score [start] = get_heuristic_cost (start);
+		f_score [start] = get_heuristic_cost (start, goal);
 
 		
-		Dictionary<a_star_node, a_star_node> came_from = new Dictionary<a_star_node, a_star_node>();
+		Dictionary<GameObject, GameObject> came_from = new Dictionary<GameObject, GameObject>();
 
 		while (openset.Count > 0) 
 		{
 
-			a_star_node current = lowest_f_score(openset, f_score);
+			GameObject current = lowest_f_score(openset, f_score);
 			
-			if(current.node == goal.node){
+			if(current == goal){
 				return reconstruct_path(came_from, goal);
 			}
 			
 			openset.Remove(current);
 			closedset.Add(current);
 			
-			foreach(a_star_node neighbor in neighbors(current))
+			foreach(GameObject neighbor in neighbors(current))
 			{
-				if(closedset.IndexOf(neighbor) != -1)
+				if(closedset.Contains(neighbor))
 				{
 					continue;
 				}
 
 				float tenative_score = get_score(g_score, current) + 
-								Vector3.Distance(neighbor.node.transform.position, current.node.transform.position);//change 1 to edge-weight
+								Vector3.Distance(neighbor.transform.position, current.transform.position);
 				
-				if(openset.IndexOf(neighbor) == -1 || tenative_score < get_score(g_score, neighbor))
+				if( !openset.Contains(neighbor) || tenative_score < get_score(g_score, neighbor)) //if it's not on the open list, or it is, but this path is shorter...
 				{
 					came_from[neighbor] = current;
 					g_score[neighbor] = tenative_score;
-					f_score[neighbor] = g_score[neighbor] + get_heuristic_cost(neighbor);
-					if(openset.IndexOf(neighbor) == -1)
+					f_score[neighbor] = g_score[neighbor] + get_heuristic_cost(neighbor, goal);
+					if(!openset.Contains(neighbor))
 					{
 						openset.Add(neighbor);
 					}
@@ -111,18 +88,16 @@ public class A_Star {
 
 		}
 
-
-		List<a_star_node> to_return = new List<a_star_node> ();
+		List<GameObject> to_return = new List<GameObject> ();
 		to_return.Add (goal);
 		return to_return;
 	}
 
-	private a_star_node lowest_f_score(List<a_star_node> set, Dictionary<a_star_node, float> f_score) //SHOULD INCLUDE F (THIS IS JUST G SCORE
+	private GameObject lowest_f_score(List<GameObject> set, Dictionary<GameObject, float> f_score) //SHOULD INCLUDE F (THIS IS JUST G SCORE
 	{
-		a_star_node to_return = set [0];
+		GameObject to_return = set [0];
 		
-		
-		foreach(a_star_node n in set){
+		foreach(GameObject n in set){
 			float score_1 = float.MaxValue;
 			f_score.TryGetValue(n, out score_1);
 			float score_2 = float.MaxValue;
@@ -136,16 +111,16 @@ public class A_Star {
 		return to_return;
 	}
 	
-	private List<a_star_node> neighbors(a_star_node node)
+	private List<GameObject> neighbors(GameObject node)
 	{
-		List<a_star_node> out_neighbors = new List<a_star_node>();
-		foreach (edge edge in node.edges) {
-			out_neighbors.Add( get_a_star_node(edge.to) );
+		List<GameObject> out_neighbors = new List<GameObject>();
+		foreach (edge edge in node.GetComponent<node>().edges) {
+			out_neighbors.Add( edge.to );
 		}
 		return out_neighbors;
 	}
 	
-	private float get_score(Dictionary<a_star_node, float> score, a_star_node key){
+	private float get_score(Dictionary<GameObject, float> score, GameObject key){
 		float out_val = 0;
 		if( score.TryGetValue(key, out out_val) ){
 			return out_val;
@@ -154,15 +129,12 @@ public class A_Star {
 		
 	}
 
-
-	
-	
-	private a_star_node nearist_node_to(List<a_star_node> these_nodes, GameObject close_to){
+	private GameObject nearist_node_to(List<GameObject> these_nodes, GameObject close_to){
 		float min_dist = float.MaxValue;
-		a_star_node nearist = (these_nodes.Count >= 1) ? these_nodes[0] : new a_star_node();
-		foreach (a_star_node a_node in these_nodes) {
-			if(a_node.node != null){
-				float max_dist = Vector3.Distance(a_node.node.transform.position, close_to.transform.position);
+		GameObject nearist = (these_nodes.Count >= 1) ? these_nodes[0] : new GameObject();
+		foreach (GameObject a_node in these_nodes) {
+			if(a_node != null){
+				float max_dist = Vector3.Distance(a_node.transform.position, close_to.transform.position);
 				if(max_dist <= min_dist){
 					min_dist = max_dist;
 					nearist = a_node;
@@ -173,43 +145,23 @@ public class A_Star {
 	}
 
 	
-	private List<a_star_node> reconstruct_path(Dictionary<a_star_node, a_star_node> came_from, a_star_node current_node){
+	private List<GameObject> reconstruct_path(Dictionary<GameObject, GameObject> came_from, GameObject current_node){
 		
 		if (came_from.ContainsKey (current_node)) {
-			List<a_star_node> to_return = reconstruct_path(came_from, came_from[current_node]);
+			List<GameObject> to_return = reconstruct_path(came_from, came_from[current_node]);
 			to_return.Add(current_node);
 			return to_return;
 		} else {
-			List<a_star_node> to_return = new List<a_star_node> ();
+			List<GameObject> to_return = new List<GameObject> ();
 			to_return.Add (current_node);
 			return to_return;
 		}
 	}
 
 
-	private float get_heuristic_cost(a_star_node n){
-		
-		if(target.node != null){
-			return Vector3.Distance(n.node.transform.position, target.node.transform.position);
-		} else {
-			return 0;
-		}
+	private float get_heuristic_cost(GameObject n, GameObject t){
+		return Vector3.Distance(n.transform.position, t.transform.position);
 	}
 
 }
-
-
-
-
-public struct a_star_node{
-	public a_star_node(GameObject _node){
-		node = _node;
-	}
-	public GameObject node;
-	public List<edge> edges {get {
-			return node.GetComponent<node>().edges;
-		}}
-}
-
-
 
