@@ -13,9 +13,5 @@ public class entity_controller : MonoBehaviour {
 		}
 
 	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+
 }

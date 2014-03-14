@@ -3,12 +3,17 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-
 public class A_Star {
 
 	a_star_node agent;
 	List<a_star_node> nodes;
 	a_star_node target;
+	public a_star_node Target {
+		get
+		{
+			return target;
+		}
+	}
 	List<a_star_node> path;
 
 	public A_Star(){
@@ -16,8 +21,17 @@ public class A_Star {
 
 	public void set_target(GameObject g_target)
 	{
-		target = new a_star_node (g_target);
+		target = get_a_star_node (g_target);
 
+	}
+	private a_star_node get_a_star_node(GameObject node_obj)
+	{
+		foreach (a_star_node n in nodes) {
+			if(n.node == node_obj){
+				return n;
+			}
+		}
+		return new a_star_node ();
 	}
 
 	public void load_nodes(List<GameObject> g_nodes)
@@ -34,9 +48,11 @@ public class A_Star {
 		agent = nearist_node_to(nodes, _agent);
 		if (path == null) {
 			path = a_star(agent, target);
+
 		}
 
-		return nearist_node_to( path, _agent).node.transform.position;
+		return nearist_node_to( nodes, _agent).node.transform.position;
+
 
 	}
 	
@@ -58,11 +74,10 @@ public class A_Star {
 
 		
 		Dictionary<a_star_node, a_star_node> came_from = new Dictionary<a_star_node, a_star_node>();
-		
-		
-		
+
 		while (openset.Count > 0) 
 		{
+
 			a_star_node current = lowest_f_score(openset, f_score);
 			
 			if(current.node == goal.node){
@@ -78,7 +93,9 @@ public class A_Star {
 				{
 					continue;
 				}
-				float tenative_score = get_score(g_score, current) + 1;//change 1 to edge-weight
+
+				float tenative_score = get_score(g_score, current) + 
+								Vector3.Distance(neighbor.node.transform.position, current.node.transform.position);//change 1 to edge-weight
 				
 				if(openset.IndexOf(neighbor) == -1 || tenative_score < get_score(g_score, neighbor))
 				{
@@ -89,11 +106,11 @@ public class A_Star {
 					{
 						openset.Add(neighbor);
 					}
-					
 				}
 			}
-			
+
 		}
+
 
 		List<a_star_node> to_return = new List<a_star_node> ();
 		to_return.Add (goal);
@@ -121,10 +138,11 @@ public class A_Star {
 	
 	private List<a_star_node> neighbors(a_star_node node)
 	{
-		foreach (var edge in node.edges) {
-			nodes.Add(new a_star_node(edge.to));
+		List<a_star_node> out_neighbors = new List<a_star_node>();
+		foreach (edge edge in node.edges) {
+			out_neighbors.Add( get_a_star_node(edge.to) );
 		}
-		return nodes;
+		return out_neighbors;
 	}
 	
 	private float get_score(Dictionary<a_star_node, float> score, a_star_node key){
@@ -141,12 +159,14 @@ public class A_Star {
 	
 	private a_star_node nearist_node_to(List<a_star_node> these_nodes, GameObject close_to){
 		float min_dist = float.MaxValue;
-		a_star_node nearist = these_nodes[0];
+		a_star_node nearist = (these_nodes.Count >= 1) ? these_nodes[0] : new a_star_node();
 		foreach (a_star_node a_node in these_nodes) {
-			float max_dist = Vector3.Distance(a_node.node.transform.position, close_to.transform.position);
-			if(max_dist <= min_dist){
-				min_dist = max_dist;
-				nearist = a_node;
+			if(a_node.node != null){
+				float max_dist = Vector3.Distance(a_node.node.transform.position, close_to.transform.position);
+				if(max_dist <= min_dist){
+					min_dist = max_dist;
+					nearist = a_node;
+				}
 			}
 		}
 		return nearist;
