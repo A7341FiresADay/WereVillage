@@ -28,6 +28,8 @@ public class map_layout : MonoBehaviour {
 				node.GetComponent<node>().add_edge(edge_to, 1);
 			}
 		}
+
+		
 	}
 
 	List<GameObject> all_neighbors(GameObject self){

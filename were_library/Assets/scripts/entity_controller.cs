@@ -9,9 +9,9 @@ public class entity_controller : MonoBehaviour {
 	void Start () {
 		for(int i = 0; i < 1; i++){
 			GameObject ent = (GameObject)Instantiate(entity, new Vector3(3,0,3), Quaternion.identity);
-			ent.GetComponent<agent>().choose_target();
 			ent.transform.parent = transform;
 		}
+
 	}
 	
 	// Update is called once per frame
