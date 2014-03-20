@@ -17,7 +17,7 @@ public class Villager : MonoBehaviour
 	private Steering steering;
 	private GameManager gameManager;
 	
-	//wander varables
+	//wander variables
 	public int _wanAngle;
 	public int radiusOfCircle;
 	public int _wanChange;
@@ -62,6 +62,7 @@ public class Villager : MonoBehaviour
 		leaderFollowBool = false;
 		
 		gameManager = GameManager.Instance;
+		//Debug.Log ("GameManager: " + GameManager.Instance.ToString ());
 	}
 	
 	//Handles Collision with Cart for Scoring and Clean Up Purposes

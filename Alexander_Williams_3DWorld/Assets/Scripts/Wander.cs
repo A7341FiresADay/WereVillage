@@ -17,7 +17,7 @@ public class Wander : MonoBehaviour {
 		
 	}
 
-	Vector3 wander() {
+	public Vector3 wander() {
 		wanderRandom += Random.Range(-wanderRate, wanderRate); //move the point on the circle to a random point within the rate
 		float wanderAngle = wanderRandom * (Mathf.PI * 2); //get angle of point on circle
 		return new Vector3(this.transform.position.x + (this.transform.forward.x * wanderDistance) +
